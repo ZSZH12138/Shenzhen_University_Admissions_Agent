@@ -1,4 +1,4 @@
-\# Django 项目使用说明
+# Django 项目使用说明
 
 
 
@@ -10,7 +10,7 @@
 
 
 
-\## 一、安装依赖
+## 一、安装依赖
 
 
 
@@ -18,17 +18,17 @@
 
 
 
-代码：
+```bash
 
 pip install -r requirements.txt
-
+```
 
 
 ---
 
 
 
-\## 二、数据库初始化
+## 二、数据库初始化
 
 
 
@@ -36,21 +36,19 @@ pip install -r requirements.txt
 
 
 
-代码：
+```bash
 
 python manage.py makemigrations
+```
 
-
-
-代码：
-
+```bash：
 python manage.py migrate
-
+```
 
 
 ---
 
-\## 三、启动项目
+## 三、启动项目
 
 
 
@@ -58,17 +56,17 @@ python manage.py migrate
 
 
 
-代码：
+```bash
 
 python manage.py runserver
-
+```
 
 
 默认情况下，项目将运行在：
 
 
 
-http://127.0.0.1:8000/
+`http://127.0.0.1:8000/`
 
 
 
@@ -78,7 +76,7 @@ http://127.0.0.1:8000/
 
 ---
 
-\## 七、常见问题
+## 四、常见问题
 
 
 
@@ -112,7 +110,7 @@ python manage.py runserver 8001
 
 
 
-\## 八、停止服务
+## 五、停止服务
 
 
 
