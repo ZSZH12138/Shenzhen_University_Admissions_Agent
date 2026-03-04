@@ -1,4 +1,4 @@
-\# SZU Admission RAG – Data Construction Module
+# SZU Admission RAG – Data Construction Module
 
 
 
@@ -14,7 +14,7 @@
 
 
 
-\## 文件说明
+## 文件说明
 
 
 
@@ -22,21 +22,21 @@
 
 
 
-\### get\_data.py
+### get\_data.py
 
 用于网页数据抓取。
 
 
 
-\*\*使用说明：\*\*
+**使用说明：**
 
 
 
-\- 在文件内部填写需要爬取的网址  
+- 在文件内部填写需要爬取的网址  
 
-\- 可使用 `get\_list\_page(root\_url)` 函数获取可爬取页面列表  
+- 可使用 `get\_list\_page(root\_url)` 函数获取可爬取页面列表  
 
-\- 直接运行 `main()` 函数即可开始抓取  
+- 直接运行 `main()` 函数即可开始抓取  
 
 
 
@@ -48,17 +48,17 @@ python get\_data.py
 
 
 
-\*\*输出：\*\*
+**输出：**
 
 
 
-szu\_admission\_articles.json
+`szu\_admission\_articles.json`
 
 
 
 ---
 
-\### clean\_data.py
+### clean\_data.py
 
 
 
@@ -74,21 +74,21 @@ python clean\_data.py
 
 
 
-\*\*需要：\*\*
+**需要：**
 
-szu\_admission\_articles.json
+`szu\_admission\_articles.json`
 
 
 
-\*\*输出：\*\*
+**输出：**
 
-szu\_admission\_articles\_clean.json
+`szu\_admission\_articles\_clean.json`
 
 
 
 ---
 
-\### cut\_data.py
+### cut\_data.py
 
 
 
@@ -104,23 +104,23 @@ python cut\_data.py
 
 
 
-\*\*需要：\*\*
+**需要：**
 
-szu\_admission\_articles\_clean.json
-
-
+`szu\_admission\_articles\_clean.json`
 
 
 
-\*\*输出：\*\*
 
-szu\_admission\_chunks.json
+
+**输出：**
+
+`szu\_admission\_chunks.json`
 
 
 
 ---
 
-\### embedding.py
+### embedding.py
 
 
 
@@ -128,9 +128,9 @@ szu\_admission\_chunks.json
 
 
 
-\- 生成向量 `.npy` 文件  
+- 生成向量 `.npy` 文件  
 
-\- 构建 FAISS 索引 `.index` 文件  
+- 构建 FAISS 索引 `.index` 文件  
 
 
 
@@ -142,13 +142,13 @@ python embedding.py
 
 
 
-\*\*需要：\*\*
+**需要：**
 
-szu\_admission\_chunks.json
+`szu\_admission\_chunks.json`
 
 
 
-\*\*输出：\*\*
+**输出：**
 
 
 
@@ -160,7 +160,7 @@ szu\_embeddings.npy
 
 ---
 
-\## 四、运行顺序
+## 运行顺序
 
 
 
@@ -168,15 +168,14 @@ szu\_embeddings.npy
 
 
 
-1\. get\_data.py  
+1. get\_data.py  
 
-2\. clean\_data.py  
+2. clean\_data.py  
 
-3\. cut\_data.py  
+3. cut\_data.py  
 
-4\. embedding.py  
+4. embedding.py  
 
 
-
-⚠️ 本模块未集成自动 pipeline，请勿跳步骤运行。
+本模块未集成自动 pipeline，请勿跳步骤运行。
 
