@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深圳大学招生 Agent</title>
+    <style>
+        :root {
+            --primary-color: #8c0732; /* 深大红 */
+            --accent-color: #c9a063; /* 金色 */
+            --bg-black: #050505;
+            --user-bubble-bg: rgba(201, 160, 99, 0.18);
+            --user-bubble-border: rgba(201, 160, 99, 0.4);
+            --bot-bubble-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-black);
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #particles {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; pointer-events: none;
+        }
+
+        /* ===== 标题动态离场 ===== */
+        #hero {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #hero.hidden {
+            opacity: 0;
+            transform: translate(-50%, -70%) scale(0.8);
+            pointer-events: none;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: 10px;
+            background: linear-gradient(135deg, #fff 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            animation: titleReveal 1s ease-out forwards 0.3s;
+        }
+
+        @keyframes titleReveal { to { opacity: 1; transform: translateY(0); } }
+
+        /* ===== 聊天流布局 ===== */
+        #chat-wrapper {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            max-width: 850px;
+            margin: 40px auto 120px;
+            overflow-y: auto;
+            z-index: 5;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        #chat-wrapper.visible { opacity: 1; }
+
+        .msg {
+            max-width: 85%;
+            line-height: 1.7;
+            padding: 14px 22px;
+            border-radius: 18px;
+            font-size: 16px;
+            animation: msgSlideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            position: relative;
+            /* --- 核心代码如下 --- */
+            white-space: pre-wrap; /* 识别 \n 并自动换行 */
+            word-break: break-word; /* 防止长单词撑破气泡 */
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            color: var(--accent-color);
+            background: var(--user-bubble-bg);
+            border: 1px solid var(--user-bubble-border);
+            backdrop-filter: blur(8px);
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg.bot {
+            align-self: flex-start;
+            background: var(--bot-bubble-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom-left-radius: 4px;
+            color: #efefef;
+        }
+
+        /* ===== 参考资料样式 ===== */
+        .source-container {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 13px;
+        }
+
+        .source-header {
+            color: var(--accent-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            user-select: none;
+            transition: opacity 0.3s;
+        }
+
+        .source-header:hover { opacity: 0.8; }
+
+        .source-content {
+            display: none; /* 默认隐藏 */
+            margin-top: 8px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            color: #aaa;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .source-content.show { display: block; }
+
+        @keyframes msgSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .typing::after {
+            content: '|';
+            animation: blink 0.8s infinite;
+            color: var(--accent-color);
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* ===== 输入框 ===== */
+        #input-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 700px;
+            z-index: 100;
+        }
+
+        .input-box {
+            background: rgba(30, 30, 30, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 10px 15px;
+            display: flex;
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        button {
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 0 25px;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        #chat-wrapper::-webkit-scrollbar { width: 5px; }
+        #chat-wrapper::-webkit-scrollbar-thumb { background: var(--user-bubble-border); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles"></canvas>
+
+    <div id="hero">
+        <h1 class="hero-title">深圳大学招生 Agent</h1>
+    </div>
+
+    <div id="chat-wrapper"></div>
+
+    <div id="input-container">
+        <div class="input-box">
+            <input type="text" id="question" placeholder="请输入您的问题..." autocomplete="off">
+            <button onclick="send()">发送</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 粒子系统省略，保持你之前的逻辑 ---
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function initCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; createParticles(); }
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
+                this.alpha = Math.random() * 0.5 + 0.2;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(201, 160, 99, ${this.alpha})`;
+                ctx.fill();
+            }
+        }
+        function createParticles() {
+            particles = [];
+            for (let i = 0; i < 100; i++) particles.push(new Particle());
+        }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        initCanvas(); window.addEventListener('resize', initCanvas); animate();
+
+        // --- 核心交互逻辑 ---
+        const chatWrapper = document.getElementById("chat-wrapper");
+        const input = document.getElementById("question");
+        const hero = document.getElementById("hero");
+
+        function appendMessage(role, text) {
+            const div = document.createElement("div");
+            div.className = `msg ${role}`;
+            div.innerHTML = `<div class="text-body">${text}</div>`;
+            chatWrapper.appendChild(div);
+            chatWrapper.scrollTop = chatWrapper.scrollHeight;
+            return div;
+        }
+
+        // 渲染参考资料
+        function appendContext(botDiv, context) {
+            if (!context) return;
+
+            const sourceContainer = document.createElement("div");
+            sourceContainer.className = "source-container";
+
+            // 标题部分
+            const header = document.createElement("div");
+            header.className = "source-header";
+            header.innerHTML = `<span>📖 查看参考来源</span>`;
+
+            // 内容部分
+            const content = document.createElement("div");
+            content.className = "source-content";
+            content.textContent = context; // 这里的context是views传回来的字符串
+
+            header.onclick = () => {
+                content.classList.toggle('show');
+                chatWrapper.scrollTop = chatWrapper.scrollHeight;
+            };
+
+            sourceContainer.appendChild(header);
+            sourceContainer.appendChild(content);
+            botDiv.appendChild(sourceContainer);
+        }
+
+        function typeWriter(element, text, context) {
+            const textEl = element.querySelector('.text-body');
+            // 强制让这个小容器也支持换行
+            textEl.style.whiteSpace = "pre-wrap";
+            textEl.innerHTML = "";
+            textEl.classList.add('typing');
+
+            let i = 0;
+            const timer = setInterval(() => {
+                if (i < text.length) {
+                    // 每次直接赋值，让浏览器解析。这样 \n 和 <br> 都能生效
+                    textEl.innerText = text.substring(0, i + 1);
+                    i++;
+                    chatWrapper.scrollTop = chatWrapper.scrollHeight;
+                } else {
+                    clearInterval(timer);
+                    textEl.classList.remove('typing');
+                    appendContext(element, context);
+                }
+            }, 20);
+        }
+
+        function send() {
+            const q = input.value.trim();
+            if (!q) return;
+
+            if (!hero.classList.contains('hidden')) {
+                hero.classList.add('hidden');
+                chatWrapper.classList.add('visible');
+            }
+
+            appendMessage('user', q);
+            input.value = "";
+
+            // 创建机器人加载态气泡
+            const botDiv = appendMessage('bot', "正在调阅深大官方招生数据库...");
+            botDiv.style.opacity = "0.6";
+
+            // 请求后端
+            fetch(`/ask/?q=${encodeURIComponent(q)}`)
+                .then(res => res.json())
+                .then(data => {
+                    botDiv.style.opacity = "1";
+                    // data.answer 是 AI 回复，data.context 是参考资料
+                    typeWriter(botDiv, data.answer, data.context);
+                })
+                .catch(err => {
+                    botDiv.innerHTML = "⚠️ 接入数据库失败，请检查网络连接。";
+                });
+        }
+
+        input.addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+    </script>
+</body>
+</html>
